@@ -1,27 +1,36 @@
-import random
-from os import system
+from random import randint
 from art import *
 from game_data import data
+from os import system
 
 def clear():
+    """Clears the screen"""
     return system("clear")
 
 def choose_user():
-    return random.randint(0, len(data) - 1)
+    """Returns a user index from data"""
+    return randint(0, len(data) - 1)
 
-def check_repeated_user(user_a, user_b):
+def check_repeated_user(user_a):
+    """Returns the second user"""
     user_b = choose_user()
-    if user_a == user_b:
-        check_repeated_user(user_a, user_b)
-    else:
+    if user_a != user_b:
         return user_b
+    else:
+        check_repeated_user(user_a)
+
+def compare_user_scores(user_a, user_b):
+    """Returns the user with greatest score"""
+    if data[user_a]['follower_count'] > data[user_b]['follower_count']:
+        return 'A'
+    else:
+        return 'B'
 
 def main_game():
     score = 0
-
+    
     first_user = choose_user()
-    second_user = choose_user()
-    check_repeated_user(first_user, second_user)
+    second_user = check_repeated_user(first_user)
 
     game_over = False
     while not game_over:
@@ -32,32 +41,15 @@ def main_game():
         print(vs)
         print(f"Aganist B: {data[second_user]['name']}, a {data[second_user]['description']}, from {data[second_user]['country']}.")
 
-        choose_a_user = input("Who has more followers? Type 'A' or 'B': ").upper()
+        choice = input("Who has more followers? Type 'A' or 'B': ").upper()
+        winner = compare_user_scores(first_user, second_user)
 
-        if choose_a_user == 'A':
-            player_choice = data[first_user]['follower_count']
-            game_choice = data[second_user]['follower_count']
-        elif choose_a_user == 'B':
-            game_choice = data[first_user]['follower_count']
-            player_choice = data[second_user]['follower_count']
-        else:
-            print("Invalid command, try again")
-            input("Press enter to continue...")
-
-        if player_choice > game_choice:
+        if choice == winner:
             score += 1
             first_user = second_user
-            second_user = choose_user()
-            check_repeated_user(first_user, second_user)
+            second_user = check_repeated_user(first_user)
         else:
-            print("Game Over!")
-            replay = input("Do you want to play again? Type 'Y' or 'N': ").upper()
-            if replay == "Y":
-                main_game()
-            elif replay == "N":
-                game_over = True
-            else:
-                print("Invalid command, try again")
-                input("Press enter to continue...")
+            print(f"Sorry, that's wrong. Final score: {score}")
+            game_over = True
 
 main_game()
